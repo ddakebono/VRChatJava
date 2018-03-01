@@ -12,7 +12,7 @@ public class VRCCredentials {
 	public static void setUser(String user, String pass) {
 		VRCCredentials.username = user;
 		VRCCredentials.password = pass;
-		VRCCredentials.webCredentials = Base64.getEncoder().encodeToString((user + ":" + pass).getBytes());
+		VRCCredentials.webCredentials = "basic " + Base64.getEncoder().encodeToString((user + ":" + pass).getBytes());
 		VRCCredentials.authToken = null;
 	}
 	

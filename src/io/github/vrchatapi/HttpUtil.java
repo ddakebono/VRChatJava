@@ -1,67 +1,31 @@
 package io.github.vrchatapi;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.logging.Logger;
-
-import org.json.JSONObject;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Map;
 
 public class HttpUtil {
 	
-	private static final String API_URL = "https://api.vrchat.cloud/api/1/";
-	
-	private static Logger log = Logger.getLogger(HttpUtil.class.getSimpleName());
-	
-	// simplest
-	public static JSONObject get(String to) {
+	public static String urlEncode(String s) {
 		try {
-			StringBuilder result = new StringBuilder();
-			URL url = new URL(API_URL + to);
-			log.info("Requesting " + url.toString());
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod("GET");
-			conn.setRequestProperty("user-agent", "VRChatJava");
-			BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			String line;
-			while ((line = rd.readLine()) != null) {
-				result.append(line);
-			}
-			rd.close();
-			log.info("Result " + result.toString());
-			return new JSONObject(result.toString());
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+            return URLEncoder.encode(s, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new UnsupportedOperationException(e);
+        }
 	}
 	
-	public static JSONObject apiGet(String endpoint, String params, String auth, boolean basic) {
-		try {
-			StringBuilder result = new StringBuilder();
-			URL url = new URL(API_URL + endpoint + "?apiKey=" + RemoteConfig.getClientApiKey() + "&" + params);
-			log.info("Requesting " + url.toString());
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod("GET");
-			conn.setRequestProperty("user-agent", "VRChatJava");
-			if(auth != null) {
-				if(basic) {
-					conn.setRequestProperty("Authorization", "basic " + auth);
-				}else {
-					conn.setRequestProperty("cookie", "auth=" + auth);
-				}
-			}
-			BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			String line;
-			while ((line = rd.readLine()) != null) {
-				result.append(line);
-			}
-			rd.close();
-			log.info("Result " + result.toString());
-			return new JSONObject(result.toString());
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+	public static String urlEncode(Map<?,?> map) {
+		StringBuilder sb = new StringBuilder();
+        for (Map.Entry<?,?> entry : map.entrySet()) {
+            if (sb.length() > 0) {
+                sb.append("&");
+            }
+            sb.append(String.format("%s=%s",
+                urlEncode(entry.getKey().toString()),
+                urlEncode(entry.getValue().toString())
+            ));
+        }
+        return sb.toString();  
 	}
 
 }

@@ -1,6 +1,9 @@
 package io.github.vrchatapi;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
@@ -8,6 +11,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class User {
+	
+	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 	
 	class PastDisplayName {
 		private String displayName;
@@ -80,7 +85,7 @@ public class User {
 	private boolean emailVerified;
 	private boolean hasBirthday;
 	private boolean unsubscribe;
-	private List<User> friends;
+	private List<User> friends = new ArrayList<>();
 	private String currentAvatar; // TODO: replace with avatar object
 	private String currentAvatarImageUrl;
 	private String currentAvatarAssetUrl;
@@ -94,10 +99,18 @@ public class User {
 	private String location;
 	
 	private JSONObject data;
-
+	
+	protected User(String username, String password) {
+		this.data = HttpUtil.apiGet("auth/user", "", Base64.getEncoder().encodeToString((username + ":" + password).getBytes()), true);
+		this.id = data.getString("id");
+		init();
+	}
+	
 	public User(String id, boolean init) {
 		this.id = id;
-		if(init) init();
+		if(init) {
+			init();
+		}
 	}
 
 	
@@ -108,14 +121,35 @@ public class User {
 	private void init() {
 		if(inited) return;
 		
+		if(data == null) {
+			this.data = HttpUtil.apiGet("users/" + id, "", VRChatJava.getGlobalUser().authToken, false);
+		}
+		
 		developerType = DeveloperType.valueOf(data.optString("developerType").toUpperCase());
+		
+		JSONArray pastDisplayNamesArr = data.optJSONArray("pastDisplayNames");
+		if(pastDisplayNamesArr != null) {
+			for(Object obj : pastDisplayNamesArr) {
+				if(obj instanceof JSONObject) {
+					JSONObject pdnObj = (JSONObject)obj;
+					String dateStr = pdnObj.getString("updated_at").split("\\.")[0];
+					Date date;
+					try {
+						date = DATE_FORMAT.parse(dateStr);
+					} catch (ParseException e) {
+						date = null;
+						e.printStackTrace();
+					}
+					pastDisplayNames.add(new PastDisplayName(pdnObj.getString("displayName"), date));
+				}
+			}
+		}
+		
 		
 		JSONArray friendsArr = data.optJSONArray("friends");
 		if(friendsArr != null) {
 			for(Object obj : friendsArr) {
-				if(obj instanceof String) {
-					
-				}
+				friends.add(new User(obj.toString(), false));
 			}
 		}
 		

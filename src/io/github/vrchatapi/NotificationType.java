@@ -20,6 +20,7 @@ public enum NotificationType {
 	
 	@Override
 	public String toString() {
+		if(this == FRIEND_REQUEST) return "friendRequest";
 		return super.toString().toLowerCase().replace("_", "");
 	}
 	

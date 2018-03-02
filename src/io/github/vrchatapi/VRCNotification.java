@@ -76,6 +76,11 @@ public class VRCNotification {
 		}
 		return list;
 	}
+	
+	public void accept() {
+		JSONObject obj = ApiModel.sendPutRequest("auth/user/notifications/" + id + "/accept", null);
+		System.out.println(obj);
+	}
 
 	public boolean wasSeen() {
 		return seen;

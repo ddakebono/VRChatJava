@@ -97,6 +97,7 @@ public class ApiModel {
 				result.append(line);
 			}
 			rd.close();
+			Log.INFO(result.toString());
 			resp = new JSONObject(result.toString());
 			if(conn.getResponseCode() != 200) {
 				String error = new JSONObject(result.toString()).optString("error");

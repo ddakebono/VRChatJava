@@ -57,4 +57,6 @@ public class VRCRemoteConfig {
 		return config != null;
 	}
 	
+	private VRCRemoteConfig() {}
+	
 }

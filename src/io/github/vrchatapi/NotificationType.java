@@ -1,0 +1,26 @@
+package io.github.vrchatapi;
+
+public enum NotificationType {
+	
+	ALL,
+	MESSAGE,
+	FRIEND_REQUEST,
+	INVITE,
+	VOTE_TO_KICK,
+	HALP,
+	HIDDEN,
+	;
+	
+	public static NotificationType fromString(String str) {
+		for(NotificationType type : NotificationType.values()) {
+			if(type.toString().equalsIgnoreCase(str)) return type;
+		}
+		return null;
+	}
+	
+	@Override
+	public String toString() {
+		return super.toString().toLowerCase().replace("_", "");
+	}
+	
+}

@@ -1,6 +1,6 @@
 package io.github.vrchatapi;
 
-public enum FriendLocation {
+public enum FriendStatus {
 	
 	ONLINE,
 	OFFLINE

@@ -68,9 +68,7 @@ public class VRCUser {
 	protected String currentAvatarImageUrl;
 	protected String currentAvatarThumbnailImageUrl;
 	
-	private VRCUser() {
-		
-	}
+	protected VRCUser() {}
 	
 	public void init(JSONObject json) {
 		this.id = json.getString("id");
@@ -138,6 +136,10 @@ public class VRCUser {
 	
 	public boolean hasModerationPowers() {
 		return developerType == DeveloperType.MODERATOR || developerType == DeveloperType.INTERNAL;
+	}
+	
+	public boolean isFriend() {
+		return getCurrentUser().friends.contains(id);
 	}
 	
 }

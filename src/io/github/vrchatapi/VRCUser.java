@@ -142,4 +142,9 @@ public class VRCUser {
 		return getCurrentUser().friends.contains(id);
 	}
 	
+	@Override
+	public String toString() {
+		return "VRCUser [Username: " + username + ", Displayname: " + displayName + "]";
+	}
+	
 }

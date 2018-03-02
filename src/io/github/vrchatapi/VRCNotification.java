@@ -68,7 +68,7 @@ public class VRCNotification {
 		List<VRCNotification> list = new ArrayList<>();
 		for(Object current : obj) {
 			if(current instanceof JSONObject) {
-				JSONObject not = new JSONObject();
+				JSONObject not = (JSONObject)current;
 				VRCNotification notification = new VRCNotification();
 				notification.Init(not);
 				list.add(notification);
@@ -89,7 +89,8 @@ public class VRCNotification {
 		return notificationType;
 	}
 
-	public VRCUser getSenderUser() {
+	public VRCUser getSender() {
+		if(senderUserId == null) return null;
 		return VRCUser.fetch(senderUserId);
 	}
 
@@ -97,7 +98,8 @@ public class VRCNotification {
 		return senderUsername;
 	}
 	
-	public VRCUser getReceiverUser() {
+	public VRCUser getReceiver() {
+		if(receiverUserId == null) return null;
 		return VRCUser.fetch(receiverUserId);
 	}
 
@@ -111,6 +113,11 @@ public class VRCNotification {
 		// TODO: What should we do here?
 		// will have to test 
 		Init(resp);
+	}
+
+	@Override
+	public String toString() {
+		return "VRCNotification [Sender: " + senderUsername + ", Type: " + notificationType + ", message: " + message + ", details=" + details + ", seen=" + seen + "]";
 	}
 
 }

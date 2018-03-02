@@ -49,6 +49,8 @@ public class ApiModel {
 	}
 	
 	protected static JSONObject sendRequest(String endpoint, String method, Map<String, Object> requestParams) {
+		if(requestParams != null && requestParams.size() == 0) requestParams = null;
+
 		JSONObject resp = null;
 		String apiUrl = getApiUrl();
 		String uri = apiUrl + endpoint;
@@ -129,6 +131,8 @@ public class ApiModel {
 	}
 	
 	protected static JSONArray sendRequestArray(String endpoint, String method, Map<String, Object> requestParams) {
+		if(requestParams != null && requestParams.size() == 0) requestParams = null;
+		
 		JSONArray resp = null;
 		String apiUrl = getApiUrl();
 		String uri = apiUrl + endpoint;

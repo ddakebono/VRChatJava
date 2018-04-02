@@ -4,6 +4,7 @@ public enum ReleaseStatus {
 	
 	PUBLIC,
 	PRIVATE,
-	ALL
+	ALL,
+	HIDDEN
 	
 }

@@ -3,7 +3,10 @@ package io.github.vrchatapi;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -79,7 +82,7 @@ public class ApiModel {
 				conn.setRequestProperty("Authorization", VRCCredentials.getWebCredentials());
 			}
 			if(VRCCredentials.getAuthToken() != null) {
-				conn.setRequestProperty("Cookie", "auth=" + VRCCredentials.getAuthToken());
+				conn.setRequestProperty("Cookie", VRCCredentials.getAuthToken());
 			}
 			if(!requestText.isEmpty()) {
 				conn.setDoOutput(true);
@@ -97,6 +100,28 @@ public class ApiModel {
 				result.append(line);
 			}
 			rd.close();
+
+			Map<String, List<String>> headerFields = conn.getHeaderFields();
+			Set<String> headerFieldsSet = headerFields.keySet();
+			Iterator<String> headerFieldsIter = headerFieldsSet.iterator();
+
+			while (headerFieldsIter.hasNext() && VRCCredentials.getAuthToken()==null) {
+				String headerFieldKey = headerFieldsIter.next();
+				if ("Set-Cookie".equalsIgnoreCase(headerFieldKey)) {
+					List<String> headerFieldValue = headerFields.get(headerFieldKey);
+					for (String headerValue : headerFieldValue) {
+
+						String[] fields = headerValue.split(";");
+						String cookieValue = fields[0];
+
+						if(cookieValue.startsWith("auth")){
+							Log.INFO("Found AUTH cookie, storing key.");
+							VRCCredentials.setAuthToken(cookieValue);
+						}
+					}
+
+				}
+			}
 			Log.INFO(result.toString());
 			resp = new JSONObject(result.toString());
 			if(conn.getResponseCode() != 200) {
@@ -160,7 +185,7 @@ public class ApiModel {
 				conn.setRequestProperty("Authorization", VRCCredentials.getWebCredentials());
 			}
 			if(VRCCredentials.getAuthToken() != null) {
-				conn.setRequestProperty("Cookie", "auth=" + VRCCredentials.getAuthToken());
+				conn.setRequestProperty("Cookie", VRCCredentials.getAuthToken());
 			}
 			if(!requestText.isEmpty()) {
 				conn.setDoOutput(true);

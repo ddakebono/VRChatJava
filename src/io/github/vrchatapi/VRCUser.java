@@ -1,6 +1,7 @@
 package io.github.vrchatapi;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -31,7 +32,6 @@ public class VRCUser {
 			Log.FATAL("NOT Authenticated");
 			return;
 		}
-		VRCCredentials.setAuthToken(obj.getString("authToken"));
 		VRCUser user = new VRCUser();
 		user.init(obj);
 		currentUser = user;
@@ -52,6 +52,24 @@ public class VRCUser {
 		user.initBrief(obj);
 		return user;
 	}
+
+	public static List<VRCUser> list(int offset, int count, boolean activeOnly, String search) {
+		String endpoint = activeOnly ? "users/active" : "users";
+		HashMap<String, Object> values = new HashMap<>();
+		values.put("search", search);
+		values.put("n", count);
+		values.put("offset", offset);
+		List<VRCUser> users = new ArrayList<>();
+		ApiModel.sendGetRequestArray(endpoint, values).forEach((o) -> {
+			if(o instanceof JSONObject) {
+				JSONObject obj = (JSONObject)o;
+				VRCUser user = new VRCUser();
+				user.initBrief(obj);
+				users.add(user);
+			}
+		});
+		return users;
+	}
 	
 	protected String id;
 	protected String displayName;
@@ -64,6 +82,7 @@ public class VRCUser {
 	protected int acceptedTOSVersion;
 	protected DeveloperType developerType;
 	protected String location;
+	protected String worldID;
 	protected List<String> friends = new ArrayList<>();
 	protected String currentAvatarImageUrl;
 	protected String currentAvatarThumbnailImageUrl;
@@ -88,10 +107,11 @@ public class VRCUser {
 		this.id = json.getString("id");
 		this.username = json.getString("username");
 		this.displayName = json.getString("displayName");
-		this.avatarId = json.optString("location", null);
+		this.avatarId = json.optString("currentAvatar", null);
 		this.currentAvatarImageUrl = json.optString("currentAvatarImageUrl", null);
 		this.currentAvatarThumbnailImageUrl = json.optString("currentAvatarThumbnailImageUrl", null);
 		this.developerType = DeveloperType.valueOf(json.optString("developerType", "none").toUpperCase());
+		this.worldID = json.optString("worldId", null);
 	}
 	
 	public String getDisplayName() {
@@ -133,8 +153,24 @@ public class VRCUser {
 	public String getLocation() {
 		return location;
 	}
-	
-	public boolean hasModerationPowers() {
+
+	public String getWorldID() {
+		return worldID;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public String getCurrentAvatarImageUrl() {
+        return currentAvatarImageUrl;
+    }
+
+    public String getCurrentAvatarThumbnailImageUrl() {
+        return currentAvatarThumbnailImageUrl;
+    }
+
+    public boolean hasModerationPowers() {
 		return developerType == DeveloperType.MODERATOR || developerType == DeveloperType.INTERNAL;
 	}
 	

@@ -83,6 +83,7 @@ public class VRCUser {
 	protected DeveloperType developerType;
 	protected String location;
 	protected String worldID;
+	protected String instanceID;
 	protected List<String> friends = new ArrayList<>();
 	protected String currentAvatarImageUrl;
 	protected String currentAvatarThumbnailImageUrl;
@@ -112,6 +113,7 @@ public class VRCUser {
 		this.currentAvatarThumbnailImageUrl = json.optString("currentAvatarThumbnailImageUrl", null);
 		this.developerType = DeveloperType.valueOf(json.optString("developerType", "none").toUpperCase());
 		this.worldID = json.optString("worldId", null);
+		this.instanceID = json.optString("instanceId", null);
 	}
 	
 	public String getDisplayName() {
@@ -170,7 +172,11 @@ public class VRCUser {
         return currentAvatarThumbnailImageUrl;
     }
 
-    public boolean hasModerationPowers() {
+	public String getInstanceID() {
+		return instanceID;
+	}
+
+	public boolean hasModerationPowers() {
 		return developerType == DeveloperType.MODERATOR || developerType == DeveloperType.INTERNAL;
 	}
 	

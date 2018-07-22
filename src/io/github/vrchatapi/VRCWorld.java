@@ -35,11 +35,16 @@ public class VRCWorld {
 		return world;
 	}
 	
-	public static List<VRCWorld> list(int offset, int count, boolean activeOnly) {
+	public static List<VRCWorld> list(int offset, int count, boolean activeOnly, String search) {
 		String endpoint = activeOnly ? "worlds/active" : "worlds";
 		HashMap<String, Object> values = new HashMap<>();
 		values.put("n", count);
 		values.put("offset", offset);
+		values.put("featured", false);
+		values.put("sort", SearchType.popularity);
+		values.put("order", SortOrder.descending);
+		if(search!=null)
+			values.put("search", search);
 		List<VRCWorld> worlds = new ArrayList<>();
 		ApiModel.sendGetRequestArray(endpoint, values).forEach((o) -> {
 			if(o instanceof JSONObject) {

@@ -36,5 +36,10 @@ public class VRCFriends {
 		notification.Init(resp);
 		return notification;
 	}
+
+	public static boolean unfriend(VRCUser user){
+		JSONObject resp = ApiModel.sendDeleteRequest("auth/user/friends/" + user.id, null);
+		return resp.has("success");
+	}
 	
 }

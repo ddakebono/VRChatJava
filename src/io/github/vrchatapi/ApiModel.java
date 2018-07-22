@@ -50,6 +50,10 @@ public class ApiModel {
 	public static JSONObject sendPutRequest(String endpoint, Map<String, Object> requestParams) {
 		return sendRequest(endpoint, "put", requestParams);
 	}
+
+    public static JSONObject sendDeleteRequest(String endpoint, Map<String, Object> requestParams) {
+        return sendRequest(endpoint, "delete", requestParams);
+    }
 	
 	protected static JSONObject sendRequest(String endpoint, String method, Map<String, Object> requestParams) {
 		if(requestParams != null && requestParams.size() == 0) requestParams = null;

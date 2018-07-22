@@ -78,11 +78,10 @@ public class ApiModel {
 			conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
 			conn.setRequestProperty("Content-Type", (requestText.isEmpty()) ? "application/x-www-form-urlencoded" : "application/json");
 			conn.setRequestProperty("user-agent", "VRChatJava");
-			if(VRCCredentials.getWebCredentials() != null) {
-				conn.setRequestProperty("Authorization", VRCCredentials.getWebCredentials());
-			}
-			if(VRCCredentials.getAuthToken() != null) {
+			if(VRCCredentials.getAuthToken() != null && !VRCCredentials.isTokenExpired()) {
 				conn.setRequestProperty("Cookie", VRCCredentials.getAuthToken());
+			} else {
+				conn.setRequestProperty("Authorization", VRCCredentials.getWebCredentials());
 			}
 			if(!requestText.isEmpty()) {
 				conn.setDoOutput(true);

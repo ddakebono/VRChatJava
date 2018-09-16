@@ -87,6 +87,7 @@ public class VRCUser {
 	protected List<String> friends = new ArrayList<>();
 	protected String currentAvatarImageUrl;
 	protected String currentAvatarThumbnailImageUrl;
+	protected List<String> tags;
 	
 	protected VRCUser() {}
 	
@@ -114,6 +115,8 @@ public class VRCUser {
 		this.developerType = DeveloperType.valueOf(json.optString("developerType", "none").toUpperCase());
 		this.worldID = json.optString("worldId", null);
 		this.instanceID = json.optString("instanceId", null);
+		JSONArray arr = json.optJSONArray("tags");
+		if(arr != null) arr.forEach((obj) -> tags.add((String)obj));
 	}
 	
 	public String getDisplayName() {
@@ -182,6 +185,10 @@ public class VRCUser {
 	
 	public boolean isFriend() {
 		return getCurrentUser().friends.contains(id);
+	}
+
+	public List<String> getTags(){
+		return tags;
 	}
 	
 	@Override

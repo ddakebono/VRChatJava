@@ -87,7 +87,7 @@ public class VRCUser {
 	protected List<String> friends = new ArrayList<>();
 	protected String currentAvatarImageUrl;
 	protected String currentAvatarThumbnailImageUrl;
-	protected List<String> tags;
+	protected List<String> tags = new ArrayList<>();
 	
 	protected VRCUser() {}
 	

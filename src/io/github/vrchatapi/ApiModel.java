@@ -1,5 +1,10 @@
 package io.github.vrchatapi;
 
+import io.github.vrchatapi.logging.Log;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -7,13 +12,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.net.ssl.HttpsURLConnection;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import io.github.vrchatapi.logging.Log;
 
 public class ApiModel {
 	
@@ -140,6 +138,101 @@ public class ApiModel {
 				Log.ERROR("Error sending request - " + error);
 				throw new VRCException(error);
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resp;
+	}
+
+	public static String sendGetRequestRaw(String endpoint, Map<String, Object> requestParams) {
+		return sendRequestRaw(endpoint, "get", requestParams);
+	}
+
+	protected static String sendRequestRaw(String endpoint, String method, Map<String, Object> requestParams) {
+		if (requestParams != null && requestParams.size() == 0) requestParams = null;
+
+		String resp = null;
+		String apiUrl = getApiUrl();
+		String uri = apiUrl + endpoint;
+		boolean hasOne = false;
+		if (apiKey != null) {
+			uri += "?apiKey=" + apiKey;
+			hasOne = true;
+		}
+		String requestText = "";
+		if (requestParams != null) {
+			if (method.equalsIgnoreCase("get")) {
+				uri += (hasOne ? "&" : "?") + HttpUtil.urlEncode(requestParams);
+			} else {
+				requestText = new JSONObject(requestParams).toString();
+			}
+		}
+		Log.INFO("Sending " + method + " request to " + uri);
+		try {
+			URL url = new URL(uri);
+			HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+			conn.setRequestMethod(method.toUpperCase());
+			conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+			conn.setRequestProperty("Content-Type", (requestText.isEmpty()) ? "application/x-www-form-urlencoded" : "application/json");
+			conn.setRequestProperty("user-agent", "VRChatJava");
+			if (VRCCredentials.getAuthToken() != null && !VRCCredentials.isTokenExpired()) {
+				conn.setRequestProperty("Cookie", VRCCredentials.getAuthToken());
+			} else {
+				conn.setRequestProperty("Authorization", VRCCredentials.getWebCredentials());
+			}
+			if (!requestText.isEmpty()) {
+				conn.setDoOutput(true);
+				conn.getOutputStream().write(requestText.getBytes());
+			}
+			StringBuilder result = new StringBuilder();
+			BufferedReader rd = null;
+			if (conn.getResponseCode() != 200) {
+				rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+			} else {
+				rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			}
+			String line;
+			while ((line = rd.readLine()) != null) {
+				result.append(line);
+			}
+			rd.close();
+
+			Map<String, List<String>> headerFields = conn.getHeaderFields();
+			Set<String> headerFieldsSet = headerFields.keySet();
+			Iterator<String> headerFieldsIter = headerFieldsSet.iterator();
+
+			while (headerFieldsIter.hasNext() && VRCCredentials.getAuthToken() == null) {
+				String headerFieldKey = headerFieldsIter.next();
+				if ("Set-Cookie".equalsIgnoreCase(headerFieldKey)) {
+					List<String> headerFieldValue = headerFields.get(headerFieldKey);
+					for (String headerValue : headerFieldValue) {
+
+						String[] fields = headerValue.split(";");
+						String cookieValue = fields[0];
+
+						if (cookieValue.startsWith("auth")) {
+							Log.INFO("Found AUTH cookie, storing key.");
+							VRCCredentials.setAuthToken(cookieValue);
+						}
+					}
+
+				}
+			}
+			Log.INFO(result.toString());
+			if(conn.getResponseCode() != 200) {
+				String error = new JSONObject(result.toString()).optString("error");
+				if(error == null || error.isEmpty()) {
+					JSONObject errObj = new JSONObject(result.toString()).optJSONObject("error");
+					if(errObj != null) {
+						error = errObj.optString("message", "unknown");
+					}else {
+						error = "unknown";
+					}
+				}
+				Log.ERROR("Error sending request - " + error);
+				throw new VRCException(error);
+			}
+			resp = result.toString();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

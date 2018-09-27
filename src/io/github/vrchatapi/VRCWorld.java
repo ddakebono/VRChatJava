@@ -1,10 +1,10 @@
 package io.github.vrchatapi;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import org.json.JSONObject;
 
 public class VRCWorld {
 	
@@ -25,6 +25,9 @@ public class VRCWorld {
 	protected List<VRCWorldInstance> instances = new ArrayList<>();
 	protected String thumbnailImageUrl;
 	protected boolean curated;
+	protected int totalLikes;
+	protected int totalVisits;
+	protected boolean featured;
 	
 	protected VRCWorld() {}
 	
@@ -66,6 +69,9 @@ public class VRCWorld {
 		this.releaseStatus = ReleaseStatus.valueOf(json.getString("releaseStatus").toUpperCase());
 		this.capacity = json.getInt("capacity");
 		this.occupants = json.optInt("occupants", 0);
+		this.featured = json.optBoolean("featured", false);
+		this.totalLikes = json.optInt("totalLikes", 0);
+		this.totalVisits = json.optInt("totalVisits", 0);
 	}
 	
 	public void init(JSONObject json) {
@@ -174,6 +180,18 @@ public class VRCWorld {
 	
 	public int getVersion() {
 		return version;
+	}
+
+	public int getTotalLikes() {
+		return totalLikes;
+	}
+
+	public int getTotalVisits() {
+		return totalVisits;
+	}
+
+	public boolean isFeatured() {
+		return featured;
 	}
 
 	@Override

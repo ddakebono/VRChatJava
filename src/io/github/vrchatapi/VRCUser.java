@@ -1,13 +1,12 @@
 package io.github.vrchatapi;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
+import io.github.vrchatapi.logging.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import io.github.vrchatapi.logging.Log;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class VRCUser {
 	
@@ -88,6 +87,8 @@ public class VRCUser {
 	protected String currentAvatarImageUrl;
 	protected String currentAvatarThumbnailImageUrl;
 	protected List<String> tags = new ArrayList<>();
+	protected String statusDesc;
+	protected UserStatus status;
 	
 	protected VRCUser() {}
 	
@@ -103,6 +104,8 @@ public class VRCUser {
 		this.developerType = DeveloperType.valueOf(json.optString("developerType", "none").toUpperCase());
 		JSONArray arr = json.optJSONArray("friends");
 		if(arr != null) arr.forEach((obj) -> friends.add(obj.toString()));
+		this.status = UserStatus.valueOf(json.optString("status", "offline").toLowerCase());
+		this.statusDesc = json.optString("statusDescription", "");
 	}
 	
 	public void initBrief(JSONObject json) {
@@ -117,6 +120,8 @@ public class VRCUser {
 		this.instanceID = json.optString("instanceId", null);
 		JSONArray arr = json.optJSONArray("tags");
 		if(arr != null) arr.forEach((obj) -> tags.add((String)obj));
+		this.status = UserStatus.valueOf(json.optString("status", "offline").toLowerCase());
+		this.statusDesc = json.optString("statusDescription", "");
 	}
 	
 	public String getDisplayName() {
@@ -179,8 +184,16 @@ public class VRCUser {
 		return instanceID;
 	}
 
+	public String getStatusDesc() {
+		return statusDesc;
+	}
+
+	public UserStatus getStatus() {
+		return status;
+	}
+
 	public boolean hasModerationPowers() {
-		return developerType == DeveloperType.MODERATOR || developerType == DeveloperType.INTERNAL;
+		return developerType == DeveloperType.MODERATOR || developerType == DeveloperType.INTERNAL || tags.contains("admin_moderator");
 	}
 	
 	public boolean isFriend() {

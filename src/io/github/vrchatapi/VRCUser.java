@@ -88,7 +88,7 @@ public class VRCUser {
 	protected String currentAvatarThumbnailImageUrl;
 	protected List<String> tags = new ArrayList<>();
 	protected String statusDesc;
-	protected UserStatus status;
+	protected String status;
 	
 	protected VRCUser() {}
 	
@@ -104,7 +104,7 @@ public class VRCUser {
 		this.developerType = DeveloperType.valueOf(json.optString("developerType", "none").toUpperCase());
 		JSONArray arr = json.optJSONArray("friends");
 		if(arr != null) arr.forEach((obj) -> friends.add(obj.toString()));
-		this.status = UserStatus.valueOf(json.optString("status", "offline").toLowerCase());
+		this.status = json.optString("status", "offline").toLowerCase();
 		this.statusDesc = json.optString("statusDescription", "");
 	}
 	
@@ -120,7 +120,7 @@ public class VRCUser {
 		this.instanceID = json.optString("instanceId", null);
 		JSONArray arr = json.optJSONArray("tags");
 		if(arr != null) arr.forEach((obj) -> tags.add((String)obj));
-		this.status = UserStatus.valueOf(json.optString("status", "offline").toLowerCase());
+		this.status = json.optString("status", "offline").toLowerCase();
 		this.statusDesc = json.optString("statusDescription", "");
 	}
 	
@@ -188,7 +188,7 @@ public class VRCUser {
 		return statusDesc;
 	}
 
-	public UserStatus getStatus() {
+	public String getStatus() {
 		return status;
 	}
 

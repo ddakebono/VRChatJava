@@ -89,6 +89,11 @@ public class VRCUser {
 	protected List<String> tags = new ArrayList<>();
 	protected String statusDesc;
 	protected String status;
+	protected String bio;
+	protected List<String> bioLinks = new ArrayList<>();
+	protected String state;
+	protected String lastLogin;
+	protected String lastPlatform;
 	
 	protected VRCUser() {}
 	
@@ -122,6 +127,14 @@ public class VRCUser {
 		if(arr != null) arr.forEach((obj) -> tags.add((String)obj));
 		this.status = json.optString("status", "offline").toLowerCase();
 		this.statusDesc = json.optString("statusDescription", "");
+		this.bio = json.optString("bio", "");
+		JSONArray linkArray = json.optJSONArray("bioLinks");
+		if(linkArray!=null)
+			linkArray.forEach((obj) -> bioLinks.add((String)obj));
+		this.state = json.optString("state", "Not a Friend");
+		this.lastLogin = json.optString("last_login", "");
+		this.lastPlatform = json.optString("last_platform", "");
+
 	}
 	
 	public String getDisplayName() {
@@ -190,6 +203,26 @@ public class VRCUser {
 
 	public String getStatus() {
 		return status;
+	}
+
+	public String getBio() {
+		return bio;
+	}
+
+	public List<String> getBioLinks() {
+		return bioLinks;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public String getLastLogin() {
+		return lastLogin;
+	}
+
+	public String getLastPlatform() {
+		return lastPlatform;
 	}
 
 	public boolean hasModerationPowers() {

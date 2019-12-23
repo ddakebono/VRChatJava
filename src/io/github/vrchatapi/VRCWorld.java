@@ -78,8 +78,8 @@ public class VRCWorld {
 		this.capacity = json.getInt("capacity");
 		this.occupants = json.optInt("occupants", 0);
 		this.featured = json.optBoolean("featured", false);
-		this.totalLikes = json.optInt("totalLikes", 0);
-		this.totalVisits = json.optInt("totalVisits", 0);
+		this.totalLikes = json.optInt("favorites", 0);
+		this.totalVisits = json.optInt("visits", 0);
 	}
 	
 	public void init(JSONObject json) {
@@ -115,6 +115,8 @@ public class VRCWorld {
 		this.LabsPublicationDate = Date.from(Instant.parse(json.optString("labsPublicationDate", "1970-01-01T00:00:00Z")));
 		this.publicOccupants = json.optInt("publicOccupants", 0);
 		this.privateOccupants = json.optInt("privateOccupants", 0);
+		this.totalLikes = json.optInt("favorites", 0);
+		this.totalVisits = json.optInt("visits", 0);
 	}
 	//2019-03-07T23:49:28.578Z
 	//1970-01-01T00:00:00Z

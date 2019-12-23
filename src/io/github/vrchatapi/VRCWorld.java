@@ -208,6 +208,30 @@ public class VRCWorld {
 		return featured;
 	}
 
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public LocalDateTime getPublicationDate() {
+		return publicationDate;
+	}
+
+	public LocalDateTime getLabsPublicationDate() {
+		return LabsPublicationDate;
+	}
+
+	public int getPrivateOccupants() {
+		return privateOccupants;
+	}
+
+	public int getPublicOccupants() {
+		return publicOccupants;
+	}
+
 	@Override
 	public String toString() {
 		return "VRCWorld [name=" + name + ", imageUrl=" + imageUrl + ", authorName=" + authorName + ", assetUrl="

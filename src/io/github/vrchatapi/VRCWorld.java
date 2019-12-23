@@ -2,9 +2,7 @@ package io.github.vrchatapi;
 
 import org.json.JSONObject;
 
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -30,10 +28,10 @@ public class VRCWorld {
 	protected int totalLikes;
 	protected int totalVisits;
 	protected boolean featured;
-	protected Date createdAt;
-	protected Date updatedAt;
-	protected Date publicationDate;
-	protected Date LabsPublicationDate;
+	protected String createdAt;
+	protected String updatedAt;
+	protected String publicationDate;
+	protected String LabsPublicationDate;
 	protected int privateOccupants;
 	protected int publicOccupants;
 	
@@ -109,10 +107,10 @@ public class VRCWorld {
 		this.capacity = json.getInt("capacity");
 		this.occupants = json.optInt("occupants", 0);
 		this.version = json.optInt("version", 0);
-		this.createdAt = Date.from(Instant.parse(json.optString("created_at", "1970-01-01T00:00:00Z")));
-		this.updatedAt = Date.from(Instant.parse(json.optString("updated_at", "1970-01-01T00:00:00Z")));
-		this.publicationDate = Date.from(Instant.parse(json.optString("publicationDate", "1970-01-01T00:00:00Z")));
-		this.LabsPublicationDate = Date.from(Instant.parse(json.optString("labsPublicationDate", "1970-01-01T00:00:00Z")));
+		this.createdAt = json.optString("created_at", "none");
+		this.updatedAt = json.optString("updated_at", "none");
+		this.publicationDate = json.optString("publicationDate", "none");
+		this.LabsPublicationDate = json.optString("labsPublicationDate", "none");
 		this.publicOccupants = json.optInt("publicOccupants", 0);
 		this.privateOccupants = json.optInt("privateOccupants", 0);
 		this.totalLikes = json.optInt("favorites", 0);
@@ -212,19 +210,19 @@ public class VRCWorld {
 		return featured;
 	}
 
-	public Date getCreatedAt() {
+	public String getCreatedAt() {
 		return createdAt;
 	}
 
-	public Date getUpdatedAt() {
+	public String getUpdatedAt() {
 		return updatedAt;
 	}
 
-	public Date getPublicationDate() {
+	public String getPublicationDate() {
 		return publicationDate;
 	}
 
-	public Date getLabsPublicationDate() {
+	public String getLabsPublicationDate() {
 		return LabsPublicationDate;
 	}
 

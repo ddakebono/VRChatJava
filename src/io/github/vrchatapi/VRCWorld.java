@@ -2,6 +2,8 @@ package io.github.vrchatapi;
 
 import org.json.JSONObject;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +30,12 @@ public class VRCWorld {
 	protected int totalLikes;
 	protected int totalVisits;
 	protected boolean featured;
+	protected LocalDateTime createdAt;
+	protected LocalDateTime updatedAt;
+	protected LocalDateTime publicationDate;
+	protected LocalDateTime LabsPublicationDate;
+	protected int privateOccupants;
+	protected int publicOccupants;
 	
 	protected VRCWorld() {}
 	
@@ -100,7 +108,13 @@ public class VRCWorld {
 		this.releaseStatus = ReleaseStatus.valueOf(json.getString("releaseStatus").toUpperCase());
 		this.capacity = json.getInt("capacity");
 		this.occupants = json.optInt("occupants", 0);
-		this.version = json.optInt("assetVersion", Integer.parseInt(json.optString("assetVersion", "0")));
+		this.version = json.optInt("version", 0);
+		this.createdAt = LocalDateTime.parse(json.optString("created_at", "1970-01-01T00:00:00Z"), DateTimeFormatter.ISO_INSTANT);
+		this.updatedAt = LocalDateTime.parse(json.optString("updated_at", "1970-01-01T00:00:00Z"), DateTimeFormatter.ISO_INSTANT);
+		this.publicationDate = LocalDateTime.parse(json.optString("publicationDate", "1970-01-01T00:00:00Z"), DateTimeFormatter.ISO_INSTANT);
+		this.LabsPublicationDate = LocalDateTime.parse(json.optString("labsPublicationDate", "1970-01-01T00:00:00Z"), DateTimeFormatter.ISO_INSTANT);
+		this.publicOccupants = json.optInt("publicOccupants", 0);
+		this.privateOccupants = json.optInt("privateOccupants", 0);
 	}
 
 	public VRCWorld getFull() {

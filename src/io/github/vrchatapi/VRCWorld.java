@@ -2,9 +2,9 @@ package io.github.vrchatapi;
 
 import org.json.JSONObject;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -30,10 +30,10 @@ public class VRCWorld {
 	protected int totalLikes;
 	protected int totalVisits;
 	protected boolean featured;
-	protected LocalDateTime createdAt;
-	protected LocalDateTime updatedAt;
-	protected LocalDateTime publicationDate;
-	protected LocalDateTime LabsPublicationDate;
+	protected Date createdAt;
+	protected Date updatedAt;
+	protected Date publicationDate;
+	protected Date LabsPublicationDate;
 	protected int privateOccupants;
 	protected int publicOccupants;
 	
@@ -109,13 +109,15 @@ public class VRCWorld {
 		this.capacity = json.getInt("capacity");
 		this.occupants = json.optInt("occupants", 0);
 		this.version = json.optInt("version", 0);
-		this.createdAt = LocalDateTime.parse(json.optString("created_at", "1970-01-01T00:00:00Z"), DateTimeFormatter.ISO_INSTANT);
-		this.updatedAt = LocalDateTime.parse(json.optString("updated_at", "1970-01-01T00:00:00Z"), DateTimeFormatter.ISO_INSTANT);
-		this.publicationDate = LocalDateTime.parse(json.optString("publicationDate", "1970-01-01T00:00:00Z"), DateTimeFormatter.ISO_INSTANT);
-		this.LabsPublicationDate = LocalDateTime.parse(json.optString("labsPublicationDate", "1970-01-01T00:00:00Z"), DateTimeFormatter.ISO_INSTANT);
+		this.createdAt = Date.from(Instant.parse(json.optString("created_at", "1970-01-01T00:00:00Z")));
+		this.updatedAt = Date.from(Instant.parse(json.optString("updated_at", "1970-01-01T00:00:00Z")));
+		this.publicationDate = Date.from(Instant.parse(json.optString("publicationDate", "1970-01-01T00:00:00Z")));
+		this.LabsPublicationDate = Date.from(Instant.parse(json.optString("labsPublicationDate", "1970-01-01T00:00:00Z")));
 		this.publicOccupants = json.optInt("publicOccupants", 0);
 		this.privateOccupants = json.optInt("privateOccupants", 0);
 	}
+	//2019-03-07T23:49:28.578Z
+	//1970-01-01T00:00:00Z
 
 	public VRCWorld getFull() {
 		return getFull(false);
@@ -208,19 +210,19 @@ public class VRCWorld {
 		return featured;
 	}
 
-	public LocalDateTime getCreatedAt() {
+	public Date getCreatedAt() {
 		return createdAt;
 	}
 
-	public LocalDateTime getUpdatedAt() {
+	public Date getUpdatedAt() {
 		return updatedAt;
 	}
 
-	public LocalDateTime getPublicationDate() {
+	public Date getPublicationDate() {
 		return publicationDate;
 	}
 
-	public LocalDateTime getLabsPublicationDate() {
+	public Date getLabsPublicationDate() {
 		return LabsPublicationDate;
 	}
 

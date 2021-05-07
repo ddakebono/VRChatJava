@@ -7,28 +7,34 @@ import org.json.JSONObject;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.net.*;
+import java.util.*;
 
 public class ApiModel {
 	
 	private static final String API_URL = "https://api.vrchat.cloud/api/1/";
+	private static final String USERAGENT = "VRChatJava";
 	protected static String apiKey;
+	private static final CookieManager cookieManager = new CookieManager();
 	
 	static {
 		// TODO: Maybe move this to somewhere else?
-		fetchApiKey();
+		try {
+			CookieHandler.setDefault(cookieManager);
+			cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+			fetchApiKey();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
 	}
 	
-	private static void fetchApiKey() {
+	private static void fetchApiKey() throws URISyntaxException {
 		if(!VRCRemoteConfig.isInitialized()) {
 			VRCRemoteConfig.init();
 		}
 		if(VRCRemoteConfig.isInitialized()) {
 			apiKey = VRCRemoteConfig.getString("clientApiKey");
+
 			if(apiKey == null || apiKey.isEmpty()) {
 				Log.ERROR("Could not fetch client api key - unknown error.");
 			}
@@ -59,15 +65,11 @@ public class ApiModel {
 		JSONObject resp = null;
 		String apiUrl = getApiUrl();
 		String uri = apiUrl + endpoint;
-		boolean hasOne = false;
-		if(apiKey != null) {
-			uri += "?apiKey=" + apiKey;
-			hasOne = true;
-		}
+
 		String requestText = "";
 		if(requestParams != null) {
 			if(method.equalsIgnoreCase("get")) {
-				uri += (hasOne ? "&" : "?") + HttpUtil.urlEncode(requestParams);
+				uri += "?" + HttpUtil.urlEncode(requestParams);
 			}else {
 				requestText = new JSONObject(requestParams).toString();
 			}
@@ -77,12 +79,8 @@ public class ApiModel {
 			URL url = new URL(uri);
 			HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
 			conn.setRequestMethod(method.toUpperCase());
-			conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-			conn.setRequestProperty("Content-Type", (requestText.isEmpty()) ? "application/x-www-form-urlencoded" : "application/json");
-			conn.setRequestProperty("user-agent", "VRChatJava");
-			if(VRCCredentials.getAuthToken() != null && !VRCCredentials.isTokenExpired()) {
-				conn.setRequestProperty("Cookie", VRCCredentials.getAuthToken());
-			} else {
+			conn.setRequestProperty("user-agent", USERAGENT);
+			if(VRCCredentials.getAuthToken() == null && VRCCredentials.isTokenExpired()) {
 				conn.setRequestProperty("Authorization", VRCCredentials.getWebCredentials());
 			}
 			if(!requestText.isEmpty()) {
@@ -90,7 +88,7 @@ public class ApiModel {
 				conn.getOutputStream().write(requestText.getBytes());
 			}
 			StringBuilder result = new StringBuilder();
-			BufferedReader rd = null;
+			BufferedReader rd;
 			if(conn.getResponseCode() != 200) {
 				rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
 			}else {
@@ -154,15 +152,11 @@ public class ApiModel {
 		String resp = null;
 		String apiUrl = getApiUrl();
 		String uri = apiUrl + endpoint;
-		boolean hasOne = false;
-		if (apiKey != null) {
-			uri += "?apiKey=" + apiKey;
-			hasOne = true;
-		}
+
 		String requestText = "";
 		if (requestParams != null) {
 			if (method.equalsIgnoreCase("get")) {
-				uri += (hasOne ? "&" : "?") + HttpUtil.urlEncode(requestParams);
+				uri += "?" + HttpUtil.urlEncode(requestParams);
 			} else {
 				requestText = new JSONObject(requestParams).toString();
 			}
@@ -172,12 +166,8 @@ public class ApiModel {
 			URL url = new URL(uri);
 			HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 			conn.setRequestMethod(method.toUpperCase());
-			conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-			conn.setRequestProperty("Content-Type", (requestText.isEmpty()) ? "application/x-www-form-urlencoded" : "application/json");
-			conn.setRequestProperty("user-agent", "VRChatJava");
-			if (VRCCredentials.getAuthToken() != null && !VRCCredentials.isTokenExpired()) {
-				conn.setRequestProperty("Cookie", VRCCredentials.getAuthToken());
-			} else {
+			conn.setRequestProperty("user-agent",USERAGENT);
+			if (VRCCredentials.getAuthToken() == null && VRCCredentials.isTokenExpired()) {
 				conn.setRequestProperty("Authorization", VRCCredentials.getWebCredentials());
 			}
 			if (!requestText.isEmpty()) {
@@ -185,7 +175,7 @@ public class ApiModel {
 				conn.getOutputStream().write(requestText.getBytes());
 			}
 			StringBuilder result = new StringBuilder();
-			BufferedReader rd = null;
+			BufferedReader rd;
 			if (conn.getResponseCode() != 200) {
 				rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
 			} else {
@@ -258,9 +248,7 @@ public class ApiModel {
 		JSONArray resp = null;
 		String apiUrl = getApiUrl();
 		String uri = apiUrl + endpoint;
-		if(apiKey != null) {
-			uri += (uri.contains("?") ? "&" : "?") + "apiKey=" + apiKey;
-		}
+
 		String requestText = "";
 		if(requestParams != null) {
 			if(method.equalsIgnoreCase("get")) {
@@ -274,21 +262,13 @@ public class ApiModel {
 			URL url = new URL(uri);
 			HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
 			conn.setRequestMethod(method.toUpperCase());
-			conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-			conn.setRequestProperty("Content-Type", (requestText.isEmpty()) ? "application/x-www-form-urlencoded" : "application/json");
-			conn.setRequestProperty("user-agent", "VRChatJava");
-			if(VRCCredentials.getWebCredentials() != null) {
-				conn.setRequestProperty("Authorization", VRCCredentials.getWebCredentials());
-			}
-			if(VRCCredentials.getAuthToken() != null) {
-				conn.setRequestProperty("Cookie", VRCCredentials.getAuthToken());
-			}
+			conn.setRequestProperty("user-agent", USERAGENT);
 			if(!requestText.isEmpty()) {
 				conn.setDoOutput(true);
 				conn.getOutputStream().write(requestText.getBytes());
 			}
 			StringBuilder result = new StringBuilder();
-			BufferedReader rd = null;
+			BufferedReader rd;
 			if(conn.getResponseCode() != 200) {
 				rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
 			}else {

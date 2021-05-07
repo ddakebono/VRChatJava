@@ -94,6 +94,9 @@ public class VRCUser {
 	protected String state;
 	protected String lastLogin;
 	protected String lastPlatform;
+	protected String userIcon;
+	protected boolean allowAvatarCopying;
+	protected String dateJoined;
 	
 	protected VRCUser() {}
 	
@@ -134,7 +137,9 @@ public class VRCUser {
 		this.state = json.optString("state", "Not a Friend");
 		this.lastLogin = json.optString("last_login", "");
 		this.lastPlatform = json.optString("last_platform", "");
-
+		this.userIcon = json.optString("userIcon", "");
+		this.allowAvatarCopying = json.optBoolean("allowAvatarCopying", false);
+		this.dateJoined = json.optString("date_joined", "Never?");
 	}
 	
 	public String getDisplayName() {
@@ -225,10 +230,22 @@ public class VRCUser {
 		return lastPlatform;
 	}
 
+	public boolean isAllowAvatarCopying() {
+		return allowAvatarCopying;
+	}
+
+	public String getDateJoined() {
+		return dateJoined;
+	}
+
 	public boolean hasModerationPowers() {
 		return developerType == DeveloperType.MODERATOR || developerType == DeveloperType.INTERNAL || tags.contains("admin_moderator");
 	}
-	
+
+	public String getUserIcon() {
+		return userIcon;
+	}
+
 	public boolean isFriend() {
 		return getCurrentUser().friends.contains(id);
 	}

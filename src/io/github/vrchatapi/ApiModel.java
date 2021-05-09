@@ -80,8 +80,10 @@ public class ApiModel {
 			HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
 			conn.setRequestMethod(method.toUpperCase());
 			conn.setRequestProperty("user-agent", USERAGENT);
-			if(VRCCredentials.getAuthToken() == null && VRCCredentials.isTokenExpired()) {
+			if(VRCCredentials.getAuthToken() == null) {
 				conn.setRequestProperty("Authorization", VRCCredentials.getWebCredentials());
+			} else if(VRCCredentials.isTokenExpired()){
+				cookieManager.getCookieStore().removeAll();
 			}
 			if(!requestText.isEmpty()) {
 				conn.setDoOutput(true);
@@ -122,21 +124,32 @@ public class ApiModel {
 				}
 			}
 			Log.INFO(result.toString());
-			resp = new JSONObject(result.toString());
-			if(conn.getResponseCode() != 200) {
-				String error = new JSONObject(result.toString()).optString("error");
-				if(error == null || error.isEmpty()) {
-					JSONObject errObj = new JSONObject(result.toString()).optJSONObject("error");						
-					if(errObj != null) {
-						error = errObj.optString("message", "unknown");
-					}else {
-						error = "unknown";
+			if(!result.toString().startsWith("error code:")) {
+				if (conn.getResponseCode() != 200) {
+					String error = new JSONObject(result.toString()).optString("error");
+					if (error == null || error.isEmpty()) {
+						JSONObject errObj = new JSONObject(result.toString()).optJSONObject("error");
+						if (errObj != null) {
+							error = errObj.optString("message", "unknown");
+						} else {
+							error = "unknown";
+						}
 					}
+					Log.ERROR("Error sending request - " + error);
+					throw new VRCException(error);
 				}
-				Log.ERROR("Error sending request - " + error);
-				throw new VRCException(error);
+				resp = new JSONObject(result.toString());
+			} else {
+				//CloudFlare Error trigger reset of cf cookie?
+				cookieManager.getCookieStore().removeAll();
+				VRCCredentials.clear();
+
+				String err = "CloudFlare Error Code: " + result.toString().replaceFirst("error code:", "").trim();
+				Log.ERROR(err);
+				throw new VRCException(err);
 			}
 		} catch (Exception e) {
+
 			e.printStackTrace();
 		}
 		return resp;
@@ -209,20 +222,30 @@ public class ApiModel {
 				}
 			}
 			Log.INFO(result.toString());
-			if(conn.getResponseCode() != 200) {
-				String error = new JSONObject(result.toString()).optString("error");
-				if(error == null || error.isEmpty()) {
-					JSONObject errObj = new JSONObject(result.toString()).optJSONObject("error");
-					if(errObj != null) {
-						error = errObj.optString("message", "unknown");
-					}else {
-						error = "unknown";
+			if(!result.toString().startsWith("error code:")) {
+				if (conn.getResponseCode() != 200) {
+					String error = new JSONObject(result.toString()).optString("error");
+					if (error == null || error.isEmpty()) {
+						JSONObject errObj = new JSONObject(result.toString()).optJSONObject("error");
+						if (errObj != null) {
+							error = errObj.optString("message", "unknown");
+						} else {
+							error = "unknown";
+						}
 					}
+					Log.ERROR("Error sending request - " + error);
+					throw new VRCException(error);
 				}
-				Log.ERROR("Error sending request - " + error);
-				throw new VRCException(error);
+				resp = result.toString();
+			} else {
+				//CloudFlare Error trigger reset of cf cookie?
+				cookieManager.getCookieStore().removeAll();
+				VRCCredentials.clear();
+
+				String err = "CloudFlare Error Code: " + result.toString().replaceFirst("error code:", "").trim();
+				Log.ERROR(err);
+				throw new VRCException(err);
 			}
-			resp = result.toString();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -279,22 +302,29 @@ public class ApiModel {
 				result.append(line);
 			}
 			rd.close();
-			try {
-				resp = new JSONArray(result.toString());
-			}catch(Exception e) {
-				if(conn.getResponseCode() != 200) {
+			if(!result.toString().startsWith("error code:")) {
+				if (conn.getResponseCode() != 200) {
 					String error = new JSONObject(result.toString()).optString("error");
-					if(error == null || error.isEmpty()) {
-						JSONObject errObj = new JSONObject(result.toString()).optJSONObject("error");						
-						if(errObj != null) {
+					if (error == null || error.isEmpty()) {
+						JSONObject errObj = new JSONObject(result.toString()).optJSONObject("error");
+						if (errObj != null) {
 							error = errObj.optString("message", "unknown");
-						}else {
+						} else {
 							error = "unknown";
 						}
 					}
 					Log.ERROR("Error sending request - " + error);
 					throw new VRCException(error);
-				}				
+				}
+				resp = new JSONArray(result.toString());
+			} else {
+				//CloudFlare Error trigger reset of cf cookie?
+				cookieManager.getCookieStore().removeAll();
+				VRCCredentials.clear();
+
+				String err = "CloudFlare Error Code: " + result.toString().replaceFirst("error code:", "").trim();
+				Log.ERROR(err);
+				throw new VRCException(err);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

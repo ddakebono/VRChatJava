@@ -26,7 +26,7 @@ public class VRCUser {
 	}
 	
 	public static void login() {
-		JSONObject obj = ApiModel.sendGetRequest("auth/user", null);
+		JSONObject obj = ApiModel.sendRequest("auth/user", "get", null, true);
 		if(obj.has("error")) {
 			Log.FATAL("NOT Authenticated");
 			return;

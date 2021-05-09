@@ -58,8 +58,12 @@ public class ApiModel {
     public static JSONObject sendDeleteRequest(String endpoint, Map<String, Object> requestParams) {
         return sendRequest(endpoint, "delete", requestParams);
     }
+
+    public static JSONObject sendRequest(String endpoint, String method, Map<String,Object> requestParams){
+		return sendRequest(endpoint, method, requestParams, false);
+	}
 	
-	protected static JSONObject sendRequest(String endpoint, String method, Map<String, Object> requestParams) {
+	protected static JSONObject sendRequest(String endpoint, String method, Map<String, Object> requestParams, boolean loginRequest) {
 		if(requestParams != null && requestParams.size() == 0) requestParams = null;
 
 		JSONObject resp = null;
@@ -80,11 +84,14 @@ public class ApiModel {
 			HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
 			conn.setRequestMethod(method.toUpperCase());
 			conn.setRequestProperty("user-agent", USERAGENT);
-			if(VRCCredentials.getAuthToken() == null) {
-				conn.setRequestProperty("Authorization", VRCCredentials.getWebCredentials());
-			} else if(VRCCredentials.isTokenExpired()){
+
+			if(!loginRequest) {
+				VRCCredentials.CheckTokenTimeout();
+			} else {
 				cookieManager.getCookieStore().removeAll();
+				conn.setRequestProperty("Authorization", VRCCredentials.getWebCredentials());
 			}
+
 			if(!requestText.isEmpty()) {
 				conn.setDoOutput(true);
 				conn.getOutputStream().write(requestText.getBytes());
@@ -106,7 +113,7 @@ public class ApiModel {
 			Set<String> headerFieldsSet = headerFields.keySet();
 			Iterator<String> headerFieldsIter = headerFieldsSet.iterator();
 
-			while (headerFieldsIter.hasNext() && VRCCredentials.getAuthToken()==null) {
+			while (headerFieldsIter.hasNext() && loginRequest) {
 				String headerFieldKey = headerFieldsIter.next();
 				if ("Set-Cookie".equalsIgnoreCase(headerFieldKey)) {
 					List<String> headerFieldValue = headerFields.get(headerFieldKey);
@@ -180,9 +187,9 @@ public class ApiModel {
 			HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 			conn.setRequestMethod(method.toUpperCase());
 			conn.setRequestProperty("user-agent",USERAGENT);
-			if (VRCCredentials.getAuthToken() == null && VRCCredentials.isTokenExpired()) {
-				conn.setRequestProperty("Authorization", VRCCredentials.getWebCredentials());
-			}
+
+			VRCCredentials.CheckTokenTimeout();
+
 			if (!requestText.isEmpty()) {
 				conn.setDoOutput(true);
 				conn.getOutputStream().write(requestText.getBytes());
@@ -200,28 +207,8 @@ public class ApiModel {
 			}
 			rd.close();
 
-			Map<String, List<String>> headerFields = conn.getHeaderFields();
-			Set<String> headerFieldsSet = headerFields.keySet();
-			Iterator<String> headerFieldsIter = headerFieldsSet.iterator();
-
-			while (headerFieldsIter.hasNext() && VRCCredentials.getAuthToken() == null) {
-				String headerFieldKey = headerFieldsIter.next();
-				if ("Set-Cookie".equalsIgnoreCase(headerFieldKey)) {
-					List<String> headerFieldValue = headerFields.get(headerFieldKey);
-					for (String headerValue : headerFieldValue) {
-
-						String[] fields = headerValue.split(";");
-						String cookieValue = fields[0];
-
-						if (cookieValue.startsWith("auth")) {
-							Log.INFO("Found AUTH cookie, storing key.");
-							VRCCredentials.setAuthToken(cookieValue);
-						}
-					}
-
-				}
-			}
 			Log.INFO(result.toString());
+
 			if(!result.toString().startsWith("error code:")) {
 				if (conn.getResponseCode() != 200) {
 					String error = new JSONObject(result.toString()).optString("error");
@@ -286,6 +273,9 @@ public class ApiModel {
 			HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
 			conn.setRequestMethod(method.toUpperCase());
 			conn.setRequestProperty("user-agent", USERAGENT);
+
+			VRCCredentials.CheckTokenTimeout();
+
 			if(!requestText.isEmpty()) {
 				conn.setDoOutput(true);
 				conn.getOutputStream().write(requestText.getBytes());

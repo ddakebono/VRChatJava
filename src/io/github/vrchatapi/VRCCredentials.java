@@ -21,7 +21,6 @@ public class VRCCredentials {
 	public static void clear() {
 		VRCCredentials.username = null;
 		VRCCredentials.password = null;
-		VRCCredentials.webCredentials = null;
 		VRCCredentials.authToken = null;
 		VRCCredentials.tokenGranted = null;
 	}
@@ -37,19 +36,18 @@ public class VRCCredentials {
 		return webCredentials;
 	}
 	
-	public static String getAuthToken() {
-		if(isTokenExpired() && tokenGranted!=null){
+	public static void CheckTokenTimeout() {
+		if(isTokenExpired()){
 			//Token invalid, renew auth token
 			authToken = null;
 			tokenGranted = null;
 			VRCUser.login();
 		}
-		return authToken;
 	}
 
 	public static boolean isTokenExpired(){
 		if(tokenGranted!=null)
-			return LocalDateTime.now().isAfter(tokenGranted.plusHours(1));
+			return LocalDateTime.now().isAfter(tokenGranted.plusMinutes(30));
 		else
 			return true;
 	}
